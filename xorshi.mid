@@ -1,0 +1,38 @@
+.BEGIN XORSHIFT
+SUBTTL XORSHIFT
+
+;;; Xorshift implementation with 36-bit output and 2^72-1 period.
+;;; Parameters provided by Sebastiano Vigna.  This is an .INSRT file
+;;; for MIDAS programs.  It expects A, T and P to be suitably defined
+;;; accumulators.  The result is returned in A.
+
+STATE:	-1,, ? 1
+
+;Algorithm parameters.
+PARM.A==7
+PARM.B==8
+PARM.C==3
+
+XORSHIFT:
+	PUSH P,T		;Save T.
+	MOVE T,STATE
+	EXCH T,STATE+1
+	EXCH T,STATE
+	LSH T,PARM.A		;Do the xorshift linear transformation.
+	XOR T,STATE+1
+	XOR T,STATE
+	MOVEM T,STATE+1
+	LSH T,-PARM.B
+	XORM T,STATE+1
+	MOVE T,STATE
+	LSH T,-PARM.C
+	XORM T,STATE+1
+	POP P,T			;Restore T.
+	MOVE A,STATE		;Compute xorshift+ scrambled result.
+	ADD A,STATE+1
+	POPJ P,
+
+.END XORSHIFT
+
+
+

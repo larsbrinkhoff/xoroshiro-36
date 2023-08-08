@@ -1,0 +1,37 @@
+.BEGIN XOROSHIRO
+SUBTTL XOROSHIRO
+
+;;; Xoroshiro implementation with 36-bit output and 2^72-1 period.
+;;; Parameters provided by Sebastiano Vigna.  This is an .INSRT file
+;;; for MIDAS programs.  It expects A, T and P to be suitably defined
+;;; accumulators.  The result is returned in A.
+
+STATE:	-1,, ? 1
+
+;Algorithm parameters.
+PARM.A==2
+PARM.B==9
+PARM.C==5
+PARM.R==11.
+
+XOROSHIRO:
+	PUSH P,T		;Save T.
+	MOVE T,STATE
+	XORM T,STATE+1		;Do the xoroshiro linear transformation.
+	ROT T,PARM.A
+	XOR T,STATE+1
+	MOVEM T,STATE
+	MOVE T,STATE+1
+	LSH T,PARM.B
+	XORM T,STATE
+	MOVE T,STATE+1
+	ROT T,PARM.C
+	MOVEM T,STATE+1
+	POP P,T			;Restore T.
+	MOVE A,STATE		;Compute xoroshiro+ scrambled result.
+	ADD A,STATE+1
+	ROT A,PARM.R		;Another ROT and ADD makes it xoroshiro++.
+	ADD A,STATE		;Return result in A.
+	POPJ P,
+
+.END XOROSHIRO
